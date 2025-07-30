@@ -1,0 +1,76 @@
+# .NET build output
+bin/
+obj/
+
+# Rider project files
+.idea/
+*.sln.iml
+
+# VS Code settings
+.vscode/
+
+# Visual Studio files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Rider cache
+.idea/
+
+# NuGet packages (optional, usually don't need this unless using packages folder)
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ReSharper files
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# dotCover
+*.dotCover
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+TestResults
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+[Tt]humbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Rider local history
+.idea/.idea.*
+
+# Others you might want to ignore
+*.db
+*.DS_Store
+
+# Uncomment this if you use a Mac
+#.DS_Store
+
+# Uncomment this if you use Rider's solution-wide analyzer cache
+#.idea/.idea.*
+
+# Rider solution-wide analyzer files
+.idea/.idea.*
+
+# Uncomment if you use DotCover
+#*.dotCover

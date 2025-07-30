@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "t_tracker_app", "t_tracker_app\t_tracker_app.csproj", "{39B739BC-972B-45C8-9278-C6A949F93780}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39B739BC-972B-45C8-9278-C6A949F93780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39B739BC-972B-45C8-9278-C6A949F93780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39B739BC-972B-45C8-9278-C6A949F93780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39B739BC-972B-45C8-9278-C6A949F93780}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
