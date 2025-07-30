@@ -5,7 +5,7 @@ public class ScreenLogger
     private readonly String _logDir;
     private String _focusFile;
     private int _currentDay;
-    
+
     public String LogDir => _logDir;
     public String FocusFile => _focusFile;
     
@@ -48,9 +48,16 @@ public class ScreenLogger
         {
             InitCurrent();
         }
-
+        
         DateTime now = DateTime.Now;
         string logLine = $"{now.ToString("yyyy-MM-dd HH:mm:ss")},{Quote(windowTitle)},{Quote(exeName)}\n";
+        File.AppendAllText(_focusFile, logLine);
+    }
+
+    public void Stop()
+    {
+        string nowStr = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        string logLine = $"{nowStr},Stopped,Stopped\n";
         File.AppendAllText(_focusFile, logLine);
     }
 }

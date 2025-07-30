@@ -16,7 +16,7 @@ public class WindowInfoFetcher
     [DllImport("user32.dll")]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
     
-    public (string WindowTitle, string ExeName) GetActiveWindowInfo()
+    public (string Title, string ExeName) GetActiveWindowInfo()
     {
         var hwnd = GetForegroundWindow();
         var buffer = new StringBuilder(256);
@@ -33,7 +33,7 @@ public class WindowInfoFetcher
                 exeName = proc.ProcessName;
             }
         }
-        catch
+        catch (Exception ex)
         {
             exeName = "<unknown>";
         }
