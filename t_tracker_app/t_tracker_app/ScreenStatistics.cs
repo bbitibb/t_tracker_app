@@ -9,7 +9,8 @@ namespace t_tracker_app;
 public class ScreenStatistics
 {
     public record LogEntry(DateTime Timestamp, string Title, string Exe, double Duration);
-
+    public record UsageRow(string exe, double secs);
+    
     /// <summary>Load all rows for the given local day.</summary>
     public IList<LogEntry> LoadDay(DateOnly day)
     {
@@ -49,10 +50,24 @@ public class ScreenStatistics
         }
         return outList;
     }
+    public IList<LogEntry> CalculateDurations(IList<LogEntry> rows)
+    {
+        var list = new List<LogEntry>();
+        for (int i = 0; i < rows.Count - 1; i++)
+        {
+            var curr = rows[i];
+            var next = rows[i + 1];
 
-    public IEnumerable<(string exe, double secs)> TopN(IList<LogEntry> rows, int n = 10) =>
-        rows.GroupBy(e => e.Exe)
-            .Select(g => (exe: g.Key, secs: g.Sum(x => x.Duration)))
-            .OrderByDescending(t => t.secs)
+            if (curr.Exe == "Stopped") continue;    // skip marker
+
+            double secs = (next.Timestamp - curr.Timestamp).TotalSeconds;
+            list.Add(curr with { Duration = secs });  // C# 'with' makes a copy
+        }
+        return list;
+    }
+    public IEnumerable<UsageRow> TopN(IList<LogEntry> rows, int n = 10) =>
+        rows.GroupBy(r => r.Exe)
+            .Select(g => new UsageRow(g.Key, g.Sum(r => r.Duration)))
+            .OrderByDescending(r => r.secs)
             .Take(n);
 }
