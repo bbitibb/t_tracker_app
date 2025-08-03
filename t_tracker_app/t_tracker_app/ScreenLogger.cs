@@ -1,63 +1,34 @@
+using Microsoft.Data.Sqlite;
+using System;
+
 namespace t_tracker_app;
 
-public class ScreenLogger
+public class ScreenLogger : IDisposable
 {
-    private readonly String _logDir;
-    private String _focusFile;
-    private int _currentDay;
+    private readonly SqliteConnection _cn;
+    private bool _disposed;
 
-    public String LogDir => _logDir;
-    public String FocusFile => _focusFile;
-    
-    public ScreenLogger()
-    {
-        _logDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "t_trackerLogs"
-        );
-        
-        DateTime now = DateTime.Now;
-        _focusFile = "";
-        
-        InitCurrent();
-    }
-    public void InitCurrent()
-    {
-        Directory.CreateDirectory(_logDir);
+    public ScreenLogger() => _cn = LogDb.Open();
 
-        DateTime now = DateTime.Now;
-        _currentDay = now.Day;
-        _focusFile = Path.Combine(_logDir, now.ToString("yyyy-MM-dd") + "_focus_log.csv");
-        
-        if (!File.Exists(_focusFile))
-        {
-            File.WriteAllText(_focusFile, "timestamp,window_title,exe_name\n");
-        }
-    }
-    
-    private string Quote(string s)
-    {
-        if (s.Contains(",") || s.Contains("\""))
-            return $"\"{s.Replace("\"", "\"\"")}\"";
-        return s;
-    }
-    
     public void Log(string windowTitle, string exeName)
     {
-        if (DateTime.Now.Day != _currentDay)
-        {
-            InitCurrent();
-        }
-        
-        DateTime now = DateTime.Now;
-        string logLine = $"{now.ToString("yyyy-MM-dd HH:mm:ss")},{Quote(windowTitle)},{Quote(exeName)}\n";
-        File.AppendAllText(_focusFile, logLine);
+        using var cmd = _cn.CreateCommand();
+        cmd.CommandText = """
+                          INSERT INTO focus_log (ts, title, exe)
+                          VALUES ($ts, $title, $exe);
+                          """;
+        cmd.Parameters.AddWithValue("$ts",   DateTime.UtcNow.ToString("o"));
+        cmd.Parameters.AddWithValue("$title",windowTitle);
+        cmd.Parameters.AddWithValue("$exe",  exeName);
+        cmd.ExecuteNonQuery();
     }
 
-    public void Stop()
+    public void Stop() => Log("Stopped", "Stopped");
+
+    public void Dispose()
     {
-        string nowStr = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        string logLine = $"{nowStr},Stopped,Stopped\n";
-        File.AppendAllText(_focusFile, logLine);
+        if (_disposed) return;
+        _cn.Dispose();
+        _disposed = true;
     }
 }

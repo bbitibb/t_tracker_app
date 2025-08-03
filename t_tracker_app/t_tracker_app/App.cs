@@ -1,52 +1,44 @@
-namespace t_tracker_app
-{
-    class App
-    {
-        private static bool _shouldStop = false;
-        
-        public static void Run()
-        {
-            var fetcher = new WindowInfoFetcher();
-            var logger = new ScreenLogger();
+// at top
+using System;
+using System.Threading;
 
-            (string prevTitle, string prevExe) = ("", "");
+namespace t_tracker_app;
+
+class App
+{
+    private static bool _stop;
+
+    public static void Run()
+    {
+        var fetcher = new WindowInfoFetcher();
+        (string prevT, string prevE) = ("", "");
+
+        Console.CancelKeyPress += (_, e) => { _stop = true; e.Cancel = true; };
+
+        Console.WriteLine("Tracking…  CTRL+C to stop");
+        using (var logger = new ScreenLogger())
+        {
             
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                Console.WriteLine("\nStopping tracking and showing statistics...");
-                _shouldStop = true;
-                e.Cancel = true;
-            };
-            
-            Console.WriteLine("Tracking started. Press CTRL+C to stop...");
-            
-            while (!_shouldStop)
+            while (!_stop)
             {
                 var (title, exe) = fetcher.GetActiveWindowInfo();
-
-                if (title != prevTitle || exe != prevExe)
+                if (title != prevT || exe != prevE)
                 {
                     logger.Log(title, exe);
-                    prevTitle = title;
-                    prevExe = exe;
+                    prevT = title; prevE = exe;
                 }
-
                 Thread.Sleep(500);
             }
-            
-            logger.Stop();
-            
-            var today = DateTime.Now.ToString("yyyy-MM-dd");
-            var logPath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "t_trackerLogs",
-                $"{today}_focus_log.csv"
-            );
 
-            var stats = new ScreenStatistics();
-            var entries = stats.ParseEntries(logPath);
-            var usage = stats.CalculateUsage(entries, 10);
-            stats.PrintTopApps(usage);
+            logger.Stop();
+        
         }
+        // show stats
+        var stats = new ScreenStatistics();
+        var entries = stats.LoadDay(DateOnly.FromDateTime(DateTime.Now));
+        foreach (var (exe, secs) in stats.TopN(entries, 10))
+            Console.WriteLine($"{exe,-20} {TimeSpan.FromSeconds(secs):hh\\:mm\\:ss}");
+        var rows = stats.LoadDay(DateOnly.FromDateTime(DateTime.Now));
+        Console.WriteLine($"DEBUG: rows loaded = {rows.Count}");
     }
 }
