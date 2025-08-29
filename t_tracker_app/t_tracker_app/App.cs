@@ -10,7 +10,8 @@ class App
 
     public static void Run()
     {
-        var fetcher = new WindowInfoFetcher();
+        var fetcher       = new WindowInfoFetcher();
+        var lastLoggedDay = DateOnly.FromDateTime(DateTime.Now);
         (string prevT, string prevE) = ("", "");
 
         Console.CancelKeyPress += (_, e) => { _stop = true; e.Cancel = true; };
@@ -22,14 +23,17 @@ class App
             while (!_stop)
             {
                 var (title, exe) = fetcher.GetActiveWindowInfo();
-                if (title != prevT || exe != prevE)
+                var today = DateOnly.FromDateTime(DateTime.Now);
+
+                if (title != prevT || exe != prevE || today != lastLoggedDay)
                 {
-                    logger.Log(title, exe);
+                    logger.Log(title, exe); 
                     prevT = title; prevE = exe;
+                    lastLoggedDay = today;
                 }
+
                 Thread.Sleep(500);
             }
-
             logger.Stop();
         
         }

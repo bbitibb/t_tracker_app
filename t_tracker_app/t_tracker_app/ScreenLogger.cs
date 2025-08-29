@@ -12,6 +12,7 @@ public class ScreenLogger : IDisposable
 
     public void Log(string windowTitle, string exeName)
     {
+        if (_disposed) return; 
         using var cmd = _cn.CreateCommand();
         cmd.CommandText = """
                           INSERT INTO focus_log (ts, title, exe)
@@ -23,7 +24,11 @@ public class ScreenLogger : IDisposable
         cmd.ExecuteNonQuery();
     }
 
-    public void Stop() => Log("Stopped", "Stopped");
+    public void Stop()
+    {
+        if (_disposed) return; 
+        Log("Stopped", "Stopped");
+    }
 
     public void Dispose()
     {

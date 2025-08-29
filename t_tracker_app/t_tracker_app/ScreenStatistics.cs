@@ -61,7 +61,7 @@ public class ScreenStatistics
             if (curr.Exe == "Stopped") continue;    // skip marker
 
             double secs = (next.Timestamp - curr.Timestamp).TotalSeconds;
-            list.Add(curr with { Duration = secs });  // C# 'with' makes a copy
+            list.Add(curr with { Duration = secs });
         }
         return list;
     }

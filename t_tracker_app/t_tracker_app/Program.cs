@@ -9,6 +9,8 @@ builder.Services.AddSingleton<ScreenLogger>();
 builder.Services.AddSingleton<ScreenStatistics>();
 builder.Services.AddSingleton<WindowInfoFetcher>(); 
 
+builder.Services.AddHostedService<FocusTrackerService>(); 
+
 var app = builder.Build();
 
 // ---- REST endpoints ----
@@ -34,17 +36,18 @@ app.MapGet("/top", (string? date, int? n, ScreenStatistics stats) =>
     return Results.Json(top);
 });
 
-// graceful CTRL+C handling
-Console.CancelKeyPress += (_, e) =>
-{
-    app.Services.GetRequiredService<ScreenLogger>().Stop();
-    e.Cancel = false;
-};
 
 app.Lifetime.ApplicationStopping.Register(() =>
 {
-    // ensure logger connection is disposed
-    app.Services.GetRequiredService<ScreenLogger>().Dispose();
+    using var scope = app.Services.CreateScope();
+    var stats = scope.ServiceProvider.GetRequiredService<ScreenStatistics>();
+    
+    var rows = stats.LoadDay(DateOnly.FromDateTime(DateTime.Now));
+    var top  = stats.TopN(rows, 10);
+    
+    Console.WriteLine("\nTop apps today:");
+    foreach (var (exe, secs) in top)
+        Console.WriteLine($"{exe,-20} {TimeSpan.FromSeconds(secs):hh\\:mm\\:ss}");
 });
 
 app.Run("http://localhost:5000");
