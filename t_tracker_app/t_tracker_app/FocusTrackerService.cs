@@ -8,7 +8,7 @@ namespace t_tracker_app;
 
 /// <summary>
 /// Background task that polls the active window every 500 ms
-/// and writes a log row whenever the window *or* calendar day changes.
+/// and writes a log row whenever the window or calendar day changes.
 /// </summary>
 public sealed class FocusTrackerService : BackgroundService
 {
@@ -30,30 +30,51 @@ public sealed class FocusTrackerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        (string prevTitle, string prevExe) = ("", "");
+        (string stableTitle, string stableExe) = ("", "");
+        (string candTitle, string candExe) = ("", "");
+        DateTime candSince = DateTime.MinValue;
+
+        const int debounceMs = 600;
+
         _log.LogInformation("Focus-tracker loop started");
+
+        _lastLoggedDay = DateOnly.FromDateTime(DateTime.Now);
 
         while (!ct.IsCancellationRequested)
         {
             var (title, exe) = _fetcher.GetActiveWindowInfo();
             var today        = DateOnly.FromDateTime(DateTime.Now);
 
-            if (title != prevTitle || exe != prevExe || today != _lastLoggedDay)
+            var dayChanged = today != _lastLoggedDay;
+
+            if (title != candTitle || exe != candExe || dayChanged)
             {
-                _logger.Log(title, exe);
-                prevTitle      = title;
-                prevExe        = exe;
-                _lastLoggedDay = today;
+                candTitle = title;
+                candExe   = exe;
+                candSince = DateTime.UtcNow;
+                if (dayChanged)
+                    _lastLoggedDay = today;
+            }
+            else
+            {
+                var stableForMs = (DateTime.UtcNow - candSince).TotalMilliseconds;
+                if (stableForMs >= debounceMs &&
+                    (candTitle != stableTitle || candExe != stableExe))
+                {
+                    _logger.Log(candTitle, candExe);
+                    stableTitle = candTitle;
+                    stableExe   = candExe;
+                }
             }
 
-            await Task.Delay(500, ct);   // poll every 0.5 s
+            await Task.Delay(500, ct);
         }
     }
 
     public override Task StopAsync(CancellationToken ct)
     {
         _log.LogInformation("Focus-tracker stopping - writing final marker");
-        _logger.Stop();                 // insert "Stopped"
+        _logger.Stop();
         return base.StopAsync(ct);
     }
 }

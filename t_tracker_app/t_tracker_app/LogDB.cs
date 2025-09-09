@@ -6,16 +6,28 @@ namespace t_tracker_app;
 
 internal static class LogDb
 {
-    public static readonly string FilePath =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+    private static string ResolvePath()
+    {
+        var overridePath = Environment.GetEnvironmentVariable("T_TRACKER_DB_PATH");
+        if (!string.IsNullOrWhiteSpace(overridePath))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(overridePath)!);
+            return overridePath;
+        }
+
+        var defaultPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             "t_trackerLogs", "t_tracker.db");
 
-    // open or create DB, ensure table + index exist
+        Directory.CreateDirectory(Path.GetDirectoryName(defaultPath)!);
+        return defaultPath;
+    }
+
     public static SqliteConnection Open()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
+        var filePath = ResolvePath();
 
-        var cn = new SqliteConnection($"Data Source={FilePath};Mode=ReadWriteCreate");
+        var cn = new SqliteConnection($"Data Source={filePath};Mode=ReadWriteCreate");
         cn.Open();
 
         const string schema = """
