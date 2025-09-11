@@ -21,10 +21,9 @@ public IList<LogEntry> LoadDay(DateOnly day)
 
     var rows = new List<(DateTime tsLocal, string title, string exe)>();
 
-    using var cn  = LogDb.Open();
+    using var cn  = LogDb.OpenReadOnly();
     using var cmd = cn.CreateCommand();
 
-    // 1) Read the day's rows (as you already do)
     cmd.CommandText = """
         SELECT ts, title, exe
         FROM   focus_log

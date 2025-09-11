@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using t_tracker_app;
 using Xunit;
 
+namespace t_tracker_app.Tests;
+
 public class FocusTrackerServiceTests
 {
     private sealed class ScriptedFetcher : WindowInfoFetcher
