@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "t_tracker_ui (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "t_tracker_ui (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
