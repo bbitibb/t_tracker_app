@@ -8,12 +8,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="t_tracker">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> 
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop Kind="BaseAlt"/>
-    </Window.SystemBackdrop>
-
-    <NavigationView x:Name="NavView" IsSettingsVisible="False"
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaddingCol"  Width="0"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="RightPaddingCol" Width="0"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="t_tracker" Margin="12,0" VerticalAlignment="Center" Opacity="0.8"/>
+        </Grid>
+        
+    <NavigationView Grid.Row="1" x:Name="NavView" IsSettingsVisible="False"
                     SelectionChanged="NavView_SelectionChanged" >
         <NavigationView.MenuItems>
             <NavigationViewItem Content="Statistics" Tag="StatisticsPage">
@@ -28,4 +40,5 @@
         </NavigationView.MenuItems>
         <Frame x:Name="ContentFrame"/>
     </NavigationView>
+    </Grid>
 </Window>
