@@ -52,19 +52,7 @@
     <ProjectReference Include="..\..\t_tracker_app.core\t_tracker_app.core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Page Remove="Pages\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Pages\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="Pages\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="Pages\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Pages\**" />
+    <Folder Include="ViewModels\" />
   </ItemGroup>
 
   <!--
