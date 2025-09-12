@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using t_tracker_app.core;
 using t_tracker_app;
 using Xunit;
 

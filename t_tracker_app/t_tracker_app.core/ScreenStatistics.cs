@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace t_tracker_app;
+namespace t_tracker_app.core;
 
 public class ScreenStatistics
 {
