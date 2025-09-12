@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using t_tracker_app;
+using t_tracker_app.core;
 using System.Globalization;
 using System.Text;
 
@@ -14,7 +15,7 @@ builder.Services.AddSingleton<WindowInfoFetcher>();
 builder.Services.AddHostedService<FocusTrackerService>(); 
 
 var app = builder.Build();
-Console.WriteLine("DB PATH = " + System.IO.Path.GetFullPath(t_tracker_app.LogDb.Open().DataSource));
+Console.WriteLine("DB PATH = " + System.IO.Path.GetFullPath(LogDb.Open().DataSource));
 
 // ---- REST endpoints ----
 
@@ -40,7 +41,7 @@ app.MapGet("/top", (string? date, int? n, ScreenStatistics stats) =>
 });
 
 // GET /health  -> 200 OK JSON if DB opens and todays rows can be read
-app.MapGet("/health", (t_tracker_app.ScreenStatistics stats) =>
+app.MapGet("/health", (ScreenStatistics stats) =>
 {
     try
     {
@@ -49,7 +50,7 @@ app.MapGet("/health", (t_tracker_app.ScreenStatistics stats) =>
         var json  = new
         {
             status        = "ok",
-            dbPath        = t_tracker_app.LogDb.FilePath,
+            dbPath        = LogDb.FilePath,
             rowsToday     = rows.Count,
             serverTimeUtc = DateTime.UtcNow.ToString("o")
         };
@@ -66,7 +67,7 @@ app.MapGet("/health", (t_tracker_app.ScreenStatistics stats) =>
 
 // GET /export.csv?date=YYYY-MM-DD  -> streamed CSV (download)
 // Columns: start_local,end_local,duration_seconds,duration_hms,exe,title
-app.MapGet("/export.csv", (HttpContext ctx, t_tracker_app.ScreenStatistics stats, string? date) =>
+app.MapGet("/export.csv", (HttpContext ctx, ScreenStatistics stats, string? date) =>
 {
     var day  = ParseOrToday(date);
     var rows = stats.LoadDay(day);

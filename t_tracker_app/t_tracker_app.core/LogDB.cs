@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 using System;
 using System.IO;
 
-namespace t_tracker_app;
+namespace t_tracker_app.core;
 
 public static class LogDb
 {
