@@ -1,0 +1,26 @@
+<Page
+    x:Class="t_tracker_ui.Views.ChartsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    xmlns:local="using:t_tracker_ui"
+    mc:Ignorable="d">
+    <Page.DataContext>
+        <StaticResource ResourceKey="UiState"/>
+    </Page.DataContext>
+
+    <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="12">
+        <!-- Controls -->
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <DatePicker Date="{x:Bind local:App.State.SelectedDate, Mode=TwoWay}" Name="StatsDate"/>            
+            <TextBlock Text="Top" VerticalAlignment="Center" />
+            <NumberBox x:Name="TopNBox" Minimum="1" Maximum="30" Value="10" SmallChange="1" Width="80"/>
+            <Button Content="Refresh" Click="OnRefresh"/>
+        </StackPanel>
+
+        <!-- Chart -->
+        <lvc:CartesianChart x:Name="Chart" Grid.Row="1" Padding="0,0,0,28" LegendPosition="Hidden"/>
+    </Grid>
+</Page>

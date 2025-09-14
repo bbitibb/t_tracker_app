@@ -9,6 +9,8 @@
     mc:Ignorable="d"
     Title="t_tracker">
     
+    
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> 
@@ -25,14 +27,21 @@
             <TextBlock Grid.Column="1" Text="t_tracker" Margin="12,0" VerticalAlignment="Center" Opacity="0.8"/>
         </Grid>
         
-    <NavigationView Grid.Row="1" x:Name="NavView" IsSettingsVisible="False"
+    <NavigationView Grid.Row="1" x:Name="NavView" IsSettingsVisible="False" IsBackButtonVisible="Collapsed" OpenPaneLength="200" CompactPaneLength="56"  
                     SelectionChanged="NavView_SelectionChanged" >
+        <NavigationView.Resources>
+            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#182026" Opacity="0.95"/>
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#659287" Opacity="0.45"/>
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected"    Color="#659287" Opacity="0.75"/>
+            <SolidColorBrush x:Key="Nav"/>
+        </NavigationView.Resources>
         <NavigationView.MenuItems>
             <NavigationViewItem Content="Statistics" Tag="StatisticsPage">
                 <NavigationViewItem.Icon>
                     <FontIcon Glyph="&#xE9D9;" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
+            <NavigationViewItem  Icon="FourBars" Content="Charts" Tag="ChartsPage"/>
             <NavigationViewItem Icon="Save" Content="Menu Item2" Tag="SamplePage2" />
             <NavigationViewItem Icon="Refresh" Content="Menu Item3" Tag="SamplePage3" />
             <NavigationViewItem Icon="Download" Content="Menu Item4" Tag="SamplePage4" />
