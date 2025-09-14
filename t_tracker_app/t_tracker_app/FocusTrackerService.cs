@@ -1,7 +1,7 @@
-using t_tracker_app;
 using Microsoft.Win32;
 using System;
 
+namespace t_tracker_app;
 
 public sealed class FocusTrackerService : BackgroundService, IDisposable
 {

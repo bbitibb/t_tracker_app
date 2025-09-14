@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using t_tracker_ui.Services;
+using t_tracker_ui.ViewModels;
 
 namespace t_tracker_ui.Views;
 
@@ -12,14 +13,22 @@ public sealed partial class DashboardPage : Page
 {
     public ObservableCollection<UsageRowVm> Top { get; } = new();
     public int Limit { get; set; } = 10;
-
+    public DashboardViewModel ViewModel { get; } = new();
     private readonly StatsReader _reader = new();
 
     public DashboardPage()
     {
         InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Required;
+        Loaded += async (_, __) => await ViewModel.RefreshAsync();
+        DataContext = ViewModel;
+        StatsDate.SelectedDate = new DateTimeOffset(DateTime.Now);
     }
+    private async void StatsDate_DateChanged(DatePicker sender, DatePickerValueChangedEventArgs args)
+        => await ViewModel.RefreshAsync();
 
+    private async void Refresh_Click(object sender, RoutedEventArgs e)
+        => await ViewModel.RefreshAsync();
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -44,8 +53,7 @@ public sealed partial class DashboardPage : Page
         }
         await Task.CompletedTask;
     }
-
-    private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync();
+    
 }
 
 public sealed class UsageRowVm
