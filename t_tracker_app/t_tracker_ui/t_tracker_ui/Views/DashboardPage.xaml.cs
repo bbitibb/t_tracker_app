@@ -12,7 +12,6 @@ namespace t_tracker_ui.Views;
 public sealed partial class DashboardPage : Page
 {
     public ObservableCollection<UsageRowVm> Top { get; } = new();
-    public int Limit { get; set; } = 10;
     public DashboardViewModel ViewModel { get; } = new();
     private readonly StatsReader _reader = new();
 
@@ -31,25 +30,28 @@ public sealed partial class DashboardPage : Page
         => await ViewModel.RefreshAsync();
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        base.OnNavigatedTo(e);
-        await LoadAsync();
+        //base.OnNavigatedTo(e);
+        //await LoadAsync();
     }
 
     private async Task LoadAsync()
     {
         Top.Clear();
         var day = DateOnly.FromDateTime(DateTime.Now);
-        var (_, top) = _reader.LoadDay(day, Limit);
+        var (_, top) = _reader.LoadDay(day, ViewModel.Limit);
 
         int rank = 1;
         foreach (var row in top)
         {
-            Top.Add(new UsageRowVm
+            if (row.exe != "Excluded")
             {
-                Rank = rank++,
-                Exe = row.exe,
-                Seconds = row.secs
-            });
+                Top.Add(new UsageRowVm
+                {
+                    Rank = rank++,
+                    Exe = row.exe,
+                    Seconds = row.secs
+                });
+            }
         }
         await Task.CompletedTask;
     }

@@ -22,7 +22,7 @@
             <DatePicker x:Name="StatsDate" Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}"/>
             <TextBlock Text="Top" VerticalAlignment="Center"/>
             <NumberBox x:Name="LimitBox" Minimum="1" Maximum="50" SmallChange="1" Width="80"
-                       Value="{x:Bind Limit, Mode=TwoWay}"/>
+                       Value="{x:Bind ViewModel.Limit, Mode=TwoWay}"/>
             <TextBlock Text="Apps Today" VerticalAlignment="Center" />
             <Button Content="Refresh" Click="Refresh_Click"/>
         </StackPanel>

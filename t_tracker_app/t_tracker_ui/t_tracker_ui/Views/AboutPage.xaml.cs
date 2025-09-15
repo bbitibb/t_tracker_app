@@ -11,11 +11,16 @@ public sealed partial class AboutPage : Page
     public string AppVersion { get; }
     public string DbPath     { get; }
     public string ApiBase    { get; } = "http://localhost:5000";
-
+    public string ConfigPath { get; }
+    public string IdleTimeoutSeconds { get; }
+    public string ExcludedApps { get; }
+    public AppConfig Config { get; }
+    
     public AboutPage()
     {
         InitializeComponent();
-
+        Config = AppConfig.Load();
+        
         var asm = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         var infoVer = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         var fileVer = asm.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
@@ -24,5 +29,11 @@ public sealed partial class AboutPage : Page
         AppVersion = infoVer ?? fileVer ?? asmVer ?? "0.0.0";
 
         DbPath = LogDb.FilePath ?? "(unknown)";
+
+        ApiBase = Config.ApiBaseUrl;
+        ConfigPath = Config.FilePath;
+        IdleTimeoutSeconds = (Config.IdleTimeoutSeconds/60).ToString() + " minutes";
+        ExcludedApps = string.Join(", ", Config.ExcludedApps);
+
     }
 }

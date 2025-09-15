@@ -12,7 +12,7 @@ public static class LogDb
         FilePath = ResolvePath();
     }
     
-    private static string ResolvePath()
+    public static string ResolvePath()
     {
         var overridePath = Environment.GetEnvironmentVariable("T_TRACKER_DB_PATH");
         if (!string.IsNullOrWhiteSpace(overridePath))
