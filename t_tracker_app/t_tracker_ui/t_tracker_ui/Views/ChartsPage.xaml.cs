@@ -11,13 +11,16 @@ using SkiaSharp;
 using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.Measure;
 using Microsoft.UI.Xaml.Navigation;
+using t_tracker_app.core;
 using t_tracker_ui.State;
+using t_tracker_ui.ViewModels;
 
 namespace t_tracker_ui.Views;
 
 public sealed partial class ChartsPage : Page
 {
     private readonly StatsReader _stats = new();
+    public DashboardViewModel ViewModel { get; } = new();
 
     public ChartsPage()
     {
@@ -25,6 +28,8 @@ public sealed partial class ChartsPage : Page
         NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Required;
         StatsDate.Date = DateTimeOffset.Now;
         TopNBox.Value  = 10;
+        
+        DataContext = ViewModel;
         
         App.State.PropertyChanged += OnAppStateChanged;
         StatsDate.DateChanged += (_, __) => LoadAndRender();
@@ -45,13 +50,23 @@ public sealed partial class ChartsPage : Page
     private void LoadAndRender()
     {
         var day = DateOnly.FromDateTime(StatsDate.Date.DateTime);
-        var n   = (int)(TopNBox.Value > 0 ? TopNBox.Value : 10);
-
+        var n   = (int)(TopNBox.Value > 0 ? TopNBox.Value : 1)+1;
+        AppConfig config = AppConfig.Load();
+        
         var (_, top) = _stats.LoadDay(day, n);
-        var data     = top.ToList();
+        var data = top
+            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
+            .OrderByDescending(u => u.secs)
+            .Take(n)
+            .Select((u, i) => new UsageRowVm
+            {
+                Rank = i + 1,
+                Exe = u.exe,                     
+                Seconds = u.secs
+            });;
 
-        var labels = data.Select(r => r.exe).ToArray();
-        var values = data.Select(r => r.secs).ToArray();
+        var labels = data.Select(r => r.Exe).ToArray();
+        var values = data.Select(r => r.Seconds).ToArray();
 
         var boldAxisPaint = new SolidColorPaint(new SKColor(0x33, 0x33, 0x33))  // dark gray
         {

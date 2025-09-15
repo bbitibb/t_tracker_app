@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using t_tracker_app.core;
 using t_tracker_ui.Services;
 using SS = t_tracker_app.core.ScreenStatistics;
 using t_tracker_ui.Views;
@@ -25,8 +26,10 @@ public partial class DashboardViewModel : ObservableObject
     {
         var date = DateOnly.FromDateTime(SelectedDate.Date);
         var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date));
-
+        var config = AppConfig.Load();
+        
         var top = topRaw
+            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
             .OrderByDescending(u => u.secs)
             .Take(Limit)
             .Select((u, i) => new UsageRowVm

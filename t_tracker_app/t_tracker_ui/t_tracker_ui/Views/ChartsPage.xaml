@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:local="using:t_tracker_ui"
+    xmlns:vm="using:t_tracker_ui.ViewModels"
     mc:Ignorable="d">
     <Page.DataContext>
         <StaticResource ResourceKey="UiState"/>
@@ -16,7 +17,7 @@
         <StackPanel Orientation="Horizontal" Spacing="8">
             <DatePicker Date="{x:Bind local:App.State.SelectedDate, Mode=TwoWay}" Name="StatsDate"/>            
             <TextBlock Text="Top" VerticalAlignment="Center" />
-            <NumberBox x:Name="TopNBox" Minimum="1" Maximum="30" Value="10" SmallChange="1" Width="80"/>
+            <NumberBox x:Name="TopNBox" Minimum="1" Maximum="30" Value="{x:Bind ViewModel.Limit, Mode=TwoWay}" SmallChange="1" Width="80"/>
             <Button Content="Refresh" Click="OnRefresh"/>
         </StackPanel>
 

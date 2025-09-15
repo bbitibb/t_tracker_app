@@ -4,9 +4,12 @@ using t_tracker_app;
 using t_tracker_app.core;
 using System.Globalization;
 using System.Text;
-
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var appConfig = AppConfig.Load();
+builder.Services.AddSingleton(appConfig);
 
 builder.Services.AddSingleton<ScreenLogger>();
 builder.Services.AddSingleton<ScreenStatistics>();
@@ -15,7 +18,11 @@ builder.Services.AddSingleton<WindowInfoFetcher>();
 builder.Services.AddHostedService<FocusTrackerService>(); 
 
 var app = builder.Build();
+
 Console.WriteLine("DB PATH = " + System.IO.Path.GetFullPath(LogDb.Open().DataSource));
+Console.WriteLine($"Config loaded from: {appConfig.FilePath}");
+Console.WriteLine($"Idle Timeout: {appConfig.IdleTimeoutSeconds}s");
+Console.WriteLine($"Excluded Apps: {string.Join(", ", appConfig.ExcludedApps)}");
 
 // ---- REST endpoints ----
 
