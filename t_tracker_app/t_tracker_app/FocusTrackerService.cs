@@ -93,7 +93,7 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
                     _wasIdle  = true;
                 }
             }
-            else if (_config.ExcludedApps.Contains(exe, StringComparer.OrdinalIgnoreCase))
+            else if (_config.IsExcludedApp(exe))
             {
                 if (prevExe != "Excluded")
                 {
@@ -138,9 +138,7 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
     }
     
     private static string NormalizeExe(string exeOrProcessName)
-        => exeOrProcessName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
-            ? exeOrProcessName
-            : exeOrProcessName + ".exe";
+        => AppConfig.NormalizeExeName(exeOrProcessName);
     
     [StructLayout(LayoutKind.Sequential)]
     private struct LASTINPUTINFO

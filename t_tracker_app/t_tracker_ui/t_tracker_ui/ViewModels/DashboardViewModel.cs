@@ -25,17 +25,21 @@ public partial class DashboardViewModel : ObservableObject
     public async Task RefreshAsync()
     {
         var date = DateOnly.FromDateTime(SelectedDate.Date);
-        var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date));
         var config = AppConfig.Load();
+        var topCount = Limit + config.ExcludedApps.Count + 1;
+        var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date, topCount));
         
         var top = topRaw
-            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
+            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase)
+                        && !string.Equals(u.exe, "Idle", StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(u.exe, "Stopped", StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(u.exe, "Excluded", StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(u => u.secs)
             .Take(Limit)
             .Select((u, i) => new UsageRowVm
             {
                 Rank = i + 1,
-                Exe = u.exe,                     
+                Exe = u.exe,                   
                 Seconds = u.secs
             });
 
