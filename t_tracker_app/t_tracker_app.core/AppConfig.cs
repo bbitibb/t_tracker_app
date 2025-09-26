@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
+using System;
 
 namespace t_tracker_app.core;
 
@@ -24,6 +26,7 @@ public class AppConfig
     public AppConfig()
     {
         FilePath = GetDefaultConfigFilePath();
+        NormalizeExcludedApps();
     }
 
     private static string GetDefaultConfigFilePath()
@@ -60,9 +63,39 @@ public class AppConfig
             }
         }
         config.Save();
+        config.NormalizeExcludedApps();
         return config;
     }
+    public bool IsExcludedApp(string exeName)
+    {
+        if (string.IsNullOrWhiteSpace(exeName))
+            return false;
 
+        var normalized = NormalizeExeName(exeName);
+        return ExcludedApps.Any(app =>
+            string.Equals(NormalizeExeName(app), normalized, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void NormalizeExcludedApps()
+    {
+        ExcludedApps = ExcludedApps
+            .Select(NormalizeExeName)
+            .Where(e => !string.IsNullOrEmpty(e))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    public static string NormalizeExeName(string? exeOrProcessName)
+    {
+        if (string.IsNullOrWhiteSpace(exeOrProcessName))
+            return string.Empty;
+
+        var trimmed = exeOrProcessName.Trim();
+
+        return trimmed.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            ? trimmed[..^4]
+            : trimmed;
+    }
     public void Save()
     {
         try
