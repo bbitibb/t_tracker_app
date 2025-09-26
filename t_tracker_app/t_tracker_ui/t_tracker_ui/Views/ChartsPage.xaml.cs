@@ -68,7 +68,7 @@ public sealed partial class ChartsPage : Page
         var labels = data.Select(r => r.Exe).ToArray();
         var values = data.Select(r => r.Seconds).ToArray();
 
-        var boldAxisPaint = new SolidColorPaint(new SKColor(0x33, 0x33, 0x33))  // dark gray
+        var boldAxisPaint = new SolidColorPaint(new SKColor(0x33, 0x33, 0x33))
         {
             SKTypeface = SKTypeface.FromFamilyName("Segoe UI", SKFontStyle.Bold)
         };
@@ -100,7 +100,17 @@ public sealed partial class ChartsPage : Page
         {
             new Axis
             {
-                Labeler = v => TimeSpan.FromSeconds(v).ToString(@"hh\:mm"),
+                Labeler = v =>
+                {
+                    var ts = TimeSpan.FromSeconds(v);
+                    int h = (int)ts.TotalHours;
+                    int m = ts.Minutes;
+
+                    if (h > 0 && m > 0) return $"{h}h {m}m";
+                    if (h > 0)          return $"{h}h";
+                    if (m > 0)          return $"{m}m";
+                    return $"{ts.Seconds}s";
+                },
                 TextSize = 15,
                 LabelsPaint = new SolidColorPaint(SKColors.DimGray)
                 {
