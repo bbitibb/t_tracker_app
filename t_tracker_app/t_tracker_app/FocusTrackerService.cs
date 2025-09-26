@@ -38,13 +38,13 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
     {
         if (e.Reason == SessionSwitchReason.SessionLock)
         {
-            _log.LogInformation("System locked → writing Stopped marker");
+            _log.LogInformation("System locked - writing Stopped marker");
             _logger.Stop();
             _wasIdle = true;
         }
         else if (e.Reason == SessionSwitchReason.SessionUnlock)
         {
-            _log.LogInformation("System unlocked → will resume logging normally");
+            _log.LogInformation("System unlocked - will resume logging normally");
             _lastActivityTime = DateTime.UtcNow;
             _forceLogNext = true;
         }
@@ -54,13 +54,13 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
     {
         if (e.Mode == PowerModes.Suspend)
         {
-            _log.LogInformation("System suspend → writing Stopped marker");
+            _log.LogInformation("System suspend - writing Stopped marker");
             _logger.Stop();
             _wasIdle = true;
         }
         else if (e.Mode == PowerModes.Resume)
         {
-            _log.LogInformation("System resume → will resume logging normally");
+            _log.LogInformation("System resume - will resume logging normally");
             _lastActivityTime = DateTime.UtcNow;
             _forceLogNext = true;
         }
