@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,6 +26,7 @@ public class AppConfig
     public AppConfig()
     {
         FilePath = GetDefaultConfigFilePath();
+        NormalizeExcludedApps();
     }
 
     private static string GetDefaultConfigFilePath()
@@ -47,6 +50,7 @@ public class AppConfig
                 if (loadedConfig != null)
                 {
                     loadedConfig.FilePath = config.FilePath;
+                    loadedConfig.NormalizeExcludedApps();
                     return loadedConfig;
                 }
             }
@@ -59,6 +63,7 @@ public class AppConfig
                 Console.Error.WriteLine($"Error reading config file: {ex.Message}");
             }
         }
+        config.NormalizeExcludedApps();
         config.Save();
         return config;
     }
@@ -67,6 +72,7 @@ public class AppConfig
     {
         try
         {
+            NormalizeExcludedApps();
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(this, options);
             File.WriteAllText(FilePath, jsonString);
@@ -79,5 +85,36 @@ public class AppConfig
         {
             Console.Error.WriteLine($"Error serializing config: {ex.Message}");
         }
+    }
+
+    public bool IsExcludedApp(string exeName)
+    {
+        if (string.IsNullOrWhiteSpace(exeName))
+            return false;
+
+        var normalized = NormalizeExeName(exeName);
+        return ExcludedApps.Any(app =>
+            string.Equals(NormalizeExeName(app), normalized, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void NormalizeExcludedApps()
+    {
+        ExcludedApps = ExcludedApps
+            .Select(NormalizeExeName)
+            .Where(e => !string.IsNullOrEmpty(e))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    public static string NormalizeExeName(string? exeOrProcessName)
+    {
+        if (string.IsNullOrWhiteSpace(exeOrProcessName))
+            return string.Empty;
+
+        var trimmed = exeOrProcessName.Trim();
+
+        return trimmed.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            ? trimmed[..^4]
+            : trimmed;
     }
 }

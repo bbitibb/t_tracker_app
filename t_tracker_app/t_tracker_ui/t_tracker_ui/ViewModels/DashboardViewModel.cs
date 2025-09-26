@@ -29,7 +29,7 @@ public partial class DashboardViewModel : ObservableObject
         var config = AppConfig.Load();
         
         var top = topRaw
-            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
+            .Where(u => !config.IsExcludedApp(u.exe) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
             .OrderByDescending(u => u.secs)
             .Take(Limit)
             .Select((u, i) => new UsageRowVm

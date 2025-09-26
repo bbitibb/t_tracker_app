@@ -55,7 +55,7 @@ public sealed partial class ChartsPage : Page
         
         var (_, top) = _stats.LoadDay(day, n);
         var data = top
-            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
+            .Where(u => !config.IsExcludedApp(u.exe) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
             .OrderByDescending(u => u.secs)
             .Take(n)
             .Select((u, i) => new UsageRowVm
