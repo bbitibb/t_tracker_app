@@ -6,7 +6,7 @@ namespace t_tracker_ui.State;
 
 public class UiState : INotifyPropertyChanged
 {
-    public UiState() {}
+    public UiState() { }
 
     private DateTimeOffset _selectedDate = DateTimeOffset.Now;
     public DateTimeOffset SelectedDate

@@ -18,7 +18,7 @@ public class ScreenStatistics_LoadDay_Tests
 
     private static void CleanupTempDb(string tempDir)
     {
-        Environment.SetEnvironmentVariable("T_TRACKER_DB_PATH", null); 
+        Environment.SetEnvironmentVariable("T_TRACKER_DB_PATH", null);
         try { Directory.Delete(tempDir, recursive: true); } catch { }
     }
 
@@ -32,10 +32,10 @@ public class ScreenStatistics_LoadDay_Tests
 
             var tzNow = DateTime.Now;
             var yesterday = DateOnly.FromDateTime(tzNow.AddDays(-1));
-            var today     = DateOnly.FromDateTime(tzNow);
+            var today = DateOnly.FromDateTime(tzNow);
 
             var y2350 = yesterday.ToDateTime(new TimeOnly(23, 50), DateTimeKind.Local);
-            var t0010 = today    .ToDateTime(new TimeOnly( 0, 10), DateTimeKind.Local);
+            var t0010 = today.ToDateTime(new TimeOnly(0, 10), DateTimeKind.Local);
 
             using (var cn = LogDb.Open())
             using (var cmd = cn.CreateCommand())
@@ -43,14 +43,14 @@ public class ScreenStatistics_LoadDay_Tests
                 cmd.CommandText = "INSERT INTO focus_log (ts,title,exe) VALUES ($ts,$t,$e);";
 
                 cmd.Parameters.AddWithValue("$ts", y2350.ToUniversalTime().ToString("o"));
-                cmd.Parameters.AddWithValue("$t",  "TitleX");
-                cmd.Parameters.AddWithValue("$e",  "AppX");
+                cmd.Parameters.AddWithValue("$t", "TitleX");
+                cmd.Parameters.AddWithValue("$e", "AppX");
                 cmd.ExecuteNonQuery();
                 cmd.Parameters.Clear();
 
                 cmd.Parameters.AddWithValue("$ts", t0010.ToUniversalTime().ToString("o"));
-                cmd.Parameters.AddWithValue("$t",  "TitleY");
-                cmd.Parameters.AddWithValue("$e",  "AppY");
+                cmd.Parameters.AddWithValue("$t", "TitleY");
+                cmd.Parameters.AddWithValue("$e", "AppY");
                 cmd.ExecuteNonQuery();
             }
 
@@ -58,7 +58,7 @@ public class ScreenStatistics_LoadDay_Tests
             var rowsToday = stats.LoadDay(today);
 
             var totalX = rowsToday.Where(e => e.Exe == "AppX").Sum(e => e.Duration);
-            Assert.InRange(totalX, 9*60, 11*60);
+            Assert.InRange(totalX, 9 * 60, 11 * 60);
         }
         finally
         {
@@ -84,8 +84,8 @@ public class ScreenStatistics_LoadDay_Tests
             {
                 cmd.CommandText = "INSERT INTO focus_log (ts,title,exe) VALUES ($ts,$t,$e);";
                 cmd.Parameters.AddWithValue("$ts", t0900.ToUniversalTime().ToString("o"));
-                cmd.Parameters.AddWithValue("$t",  "Any");
-                cmd.Parameters.AddWithValue("$e",  "AppZ");
+                cmd.Parameters.AddWithValue("$t", "Any");
+                cmd.Parameters.AddWithValue("$e", "AppZ");
                 cmd.ExecuteNonQuery();
             }
 
@@ -97,7 +97,7 @@ public class ScreenStatistics_LoadDay_Tests
             var totalZ = rowsToday.Where(e => e.Exe == "AppZ").Sum(e => e.Duration);
 
             var expectedMin = (nowBefore - t0900).TotalSeconds - 5;
-            var expectedMax = (nowAfter  - t0900).TotalSeconds + 5;
+            var expectedMax = (nowAfter - t0900).TotalSeconds + 5;
 
             Assert.InRange(totalZ, expectedMin, expectedMax);
         }

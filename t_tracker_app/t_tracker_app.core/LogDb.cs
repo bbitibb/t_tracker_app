@@ -11,7 +11,7 @@ public static class LogDb
     {
         FilePath = ResolvePath();
     }
-    
+
     public static string ResolvePath()
     {
         var overridePath = Environment.GetEnvironmentVariable("T_TRACKER_DB_PATH");
@@ -50,7 +50,7 @@ public static class LogDb
         cmd.CommandText = schema;
         cmd.ExecuteNonQuery();
 
-        return cn; 
+        return cn;
     }
     public static SqliteConnection OpenReadOnly()
     {

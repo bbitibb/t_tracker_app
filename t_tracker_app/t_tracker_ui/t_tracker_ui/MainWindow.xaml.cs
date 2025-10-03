@@ -19,7 +19,7 @@ public sealed partial class MainWindow : Window
 {
     private AppWindow _appWindow;
     const int MinW = 640, MinH = 320;
-    
+
     public MainWindow()
     {
         InitializeComponent();
@@ -35,11 +35,11 @@ public sealed partial class MainWindow : Window
             };
             await dlg.ShowAsync();
         };
-        
+
         WireHoverScaleToNavItems();
         this.AppWindow.Resize(new SizeInt32(800, 500));
-        
-        
+
+
         if (MicaController.IsSupported())
         {
             MicaBackdrop micaBackdrop = new MicaBackdrop();
@@ -49,7 +49,7 @@ public sealed partial class MainWindow : Window
         else
         {
             SystemBackdrop = null;
-            ((Panel)Content).Background = new SolidColorBrush(Color.FromArgb(100,101, 146, 135));
+            ((Panel)Content).Background = new SolidColorBrush(Color.FromArgb(100, 101, 146, 135));
         }
 
         _appWindow = AppWindow;
@@ -69,16 +69,16 @@ public sealed partial class MainWindow : Window
         _appWindow.Changed += OnAppWindowChanged;
         Activated += OnFirstActivated;
         SizeChanged += (_, __) => ClampWindowSize();
-        
+
         if (Content is FrameworkElement root)
             root.ActualThemeChanged += (_, __) => ApplyTitleBarTheme();
     }
-    
+
 
     void ClampWindowSize()
     {
         var sz = AppWindow.Size;
-        int w = Math.Max(sz.Width,  MinW);
+        int w = Math.Max(sz.Width, MinW);
         int h = Math.Max(sz.Height, MinH);
         if (w != sz.Width || h != sz.Height)
             AppWindow.Resize(new Windows.Graphics.SizeInt32(w, h));
@@ -88,7 +88,7 @@ public sealed partial class MainWindow : Window
     {
         var tb = _appWindow.TitleBar;
         AppTitleBar.Height = tb.Height;
-        LeftPaddingCol.Width  = new GridLength(tb.LeftInset);
+        LeftPaddingCol.Width = new GridLength(tb.LeftInset);
         RightPaddingCol.Width = new GridLength(tb.RightInset);
     }
     private void ApplyTitleBarTheme()
@@ -103,7 +103,7 @@ public sealed partial class MainWindow : Window
         tb.ButtonInactiveForegroundColor = fg;
     }
     #endregion
-    
+
     #region Event Handlers
     private void NavView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
@@ -160,9 +160,9 @@ public sealed partial class MainWindow : Window
     #endregion
 
 
-    
+
     #region Button Grow On Hover
-    
+
     void WireHoverScaleToNavItems()
     {
         foreach (var mi in NavView.MenuItems)
@@ -177,7 +177,7 @@ public sealed partial class MainWindow : Window
         item.SizeChanged += (_, __) => EnsureVisualSetup(item);
 
         item.PointerEntered += (_, __) => AnimateScale(item, 1.08f, 140);
-        item.PointerExited  += (_, __) => AnimateScale(item, 1.00f, 140);
+        item.PointerExited += (_, __) => AnimateScale(item, 1.00f, 140);
 
         item.PointerPressed += (_, __) => AnimateScale(item, 0.98f, 80);
         item.PointerReleased += (_, __) => AnimateScale(item, 1.08f, 120);
@@ -200,5 +200,5 @@ public sealed partial class MainWindow : Window
         v.StartAnimation(nameof(v.Scale), anim);
     }
     #endregion
-    
+
 }

@@ -12,7 +12,7 @@ public class AppConfig
     // Default settings
     public List<string> ExcludedApps { get; set; } = new List<string>
     {
-        "explorer", 
+        "explorer",
         "SystemSettings",
         "t_tracker_ui"
     };

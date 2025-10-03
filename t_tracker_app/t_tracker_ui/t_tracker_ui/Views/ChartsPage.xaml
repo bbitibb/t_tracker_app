@@ -18,7 +18,6 @@
             <DatePicker Date="{x:Bind local:App.State.SelectedDate, Mode=TwoWay}" Name="StatsDate"/>            
             <TextBlock Text="Top" VerticalAlignment="Center" />
             <NumberBox x:Name="TopNBox" Minimum="1" Maximum="30" Value="{x:Bind ViewModel.Limit, Mode=TwoWay}" SmallChange="1" Width="80"/>
-            <Button Content="Refresh" Click="OnRefresh"/>
         </StackPanel>
 
         <!-- Chart -->

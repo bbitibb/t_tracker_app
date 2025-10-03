@@ -1,6 +1,6 @@
 using Microsoft.Win32;
 using System;
-using Microsoft.Extensions.Logging; 
+using Microsoft.Extensions.Logging;
 using t_tracker_app.core;
 using System.Runtime.InteropServices;
 
@@ -15,7 +15,7 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
     private bool _wasIdle = false;
     private DateTime _lastActivityTime;
     private volatile bool _forceLogNext = false;
-    
+
     private int IdleCutoffSeconds => Math.Max(0, _config.IdleTimeoutSeconds);
     public FocusTrackerService(
         WindowInfoFetcher fetcher,
@@ -23,13 +23,13 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
         ILogger<FocusTrackerService> log,
         AppConfig config)
     {
-        _fetcher       = fetcher;
-        _logger        = logger;
-        _log           = log;
-        _config        = config;
+        _fetcher = fetcher;
+        _logger = logger;
+        _log = log;
+        _config = config;
         _lastLoggedDay = DateOnly.FromDateTime(DateTime.Now);
         _lastActivityTime = DateTime.UtcNow;
-        
+
         SystemEvents.SessionSwitch += OnSessionSwitch;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
     }
@@ -74,14 +74,14 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
         while (!ct.IsCancellationRequested)
         {
             var idleSecs = GetIdleSeconds();
-            var cutoff   = IdleCutoffSeconds;
-            
+            var cutoff = IdleCutoffSeconds;
+
             var (title, exeRaw) = _fetcher.GetActiveWindowInfo();
             var exe = NormalizeExe(exeRaw);
             var today = DateOnly.FromDateTime(DateTime.Now);
             bool isIdle = cutoff > 0 && idleSecs >= cutoff;
             bool shouldForce = _wasIdle || _forceLogNext;
-            
+
             if (isIdle)
             {
                 if (!_wasIdle)
@@ -89,8 +89,8 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
                     _log.LogInformation($"Idle for {cutoff} seconds → logging Idle");
                     _logger.Log("Idle", "Idle");
                     prevTitle = "Idle";
-                    prevExe   = "Idle";
-                    _wasIdle  = true;
+                    prevExe = "Idle";
+                    _wasIdle = true;
                 }
             }
             else if (_config.IsExcludedApp(exe))
@@ -108,12 +108,12 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
             {
                 _log.LogInformation($"Logging: Title='{title}', Exe='{exe}'");
                 _logger.Log(title, exe);
-                prevTitle      = title;
-                prevExe        = exe;
+                prevTitle = title;
+                prevExe = exe;
                 _lastLoggedDay = today;
                 _lastActivityTime = DateTime.UtcNow;
-                _forceLogNext  = false;
-                _wasIdle  = false;
+                _forceLogNext = false;
+                _wasIdle = false;
             }
 
             await Task.Delay(500, ct);
@@ -131,15 +131,15 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
 
     public override void Dispose()
     {
-        SystemEvents.SessionSwitch     -= OnSessionSwitch;
-        SystemEvents.PowerModeChanged  -= OnPowerModeChanged;
+        SystemEvents.SessionSwitch -= OnSessionSwitch;
+        SystemEvents.PowerModeChanged -= OnPowerModeChanged;
 
         base.Dispose();
     }
-    
+
     private static string NormalizeExe(string exeOrProcessName)
         => AppConfig.NormalizeExeName(exeOrProcessName);
-    
+
     [StructLayout(LayoutKind.Sequential)]
     private struct LASTINPUTINFO
     {
@@ -154,7 +154,7 @@ public sealed class FocusTrackerService : BackgroundService, IDisposable
         uint delta = tickCount - lii.dwTime; // milliseconds
         return delta / 1000.0;
     }
-    
+
     [DllImport("user32.dll")]
     private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
 

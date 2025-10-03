@@ -14,7 +14,7 @@ public sealed class StatsReader
         LoadDay(DateOnly day, int topN = 10)
     {
         var rows = _stats.LoadDay(day);
-        var top  = _stats.TopN(rows, topN);
+        var top = _stats.TopN(rows, topN);
         return (rows, top);
     }
 }

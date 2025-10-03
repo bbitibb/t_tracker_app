@@ -8,7 +8,7 @@ public sealed class SecondsToHmsConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         double seconds = (double)value;
-        
+
         var ts = TimeSpan.FromSeconds(seconds);
         int h = (int)ts.TotalHours;
         int m = ts.Minutes;

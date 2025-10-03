@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Windows.UI;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.WinUI;
@@ -14,34 +15,66 @@ using Microsoft.UI.Xaml.Navigation;
 using t_tracker_app.core;
 using t_tracker_ui.State;
 using t_tracker_ui.ViewModels;
+using Microsoft.UI.Xaml;
+
 
 namespace t_tracker_ui.Views;
 
 public sealed partial class ChartsPage : Page
 {
     private readonly StatsReader _stats = new();
+    private readonly DispatcherTimer _autoTimer = new();
     public DashboardViewModel ViewModel { get; } = new();
 
+    private readonly ColumnSeries<double> _series = new()
+    {
+        AnimationsSpeed = TimeSpan.Zero,
+        EasingFunction  = null
+    };
+    
     public ChartsPage()
     {
         InitializeComponent();
-        NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Required;
+        NavigationCacheMode = NavigationCacheMode.Required;
         StatsDate.Date = DateTimeOffset.Now;
-        TopNBox.Value  = 10;
+        TopNBox.Value = 10;
+
+        _autoTimer.Interval = TimeSpan.FromSeconds(1);
+        _autoTimer.Tick += (_, __) =>
+        {
+            var selected = DateOnly.FromDateTime(StatsDate.Date.DateTime);
+            if (selected == DateOnly.FromDateTime(DateTime.Now))
+                LoadAndRender();
+        };
         
         DataContext = ViewModel;
         
+        Chart.Series = new ISeries[] { _series, };
+        _series.Fill = new LinearGradientPaint(
+            new[] { SKColors.Teal, SKColors.Black },
+            new SKPoint(0, 0), new SKPoint(0, 1));
+        _series.Stroke = new SolidColorPaint(SKColors.Gray)
+        {
+            StrokeThickness = 1.2f,
+            IsAntialias = true 
+        };
+        
         App.State.PropertyChanged += OnAppStateChanged;
         StatsDate.DateChanged += (_, __) => LoadAndRender();
-        TopNBox.ValueChanged  += (_, __) => LoadAndRender();
+        TopNBox.ValueChanged += (_, __) => LoadAndRender();
         LoadAndRender();
     }
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+        _autoTimer.Start(); 
         LoadAndRender();
     }
-    private void OnRefresh(object sender, RoutedEventArgs e) => LoadAndRender();
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        _autoTimer.Stop();
+    }
     private void OnAppStateChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(UiState.SelectedDate))
@@ -50,9 +83,9 @@ public sealed partial class ChartsPage : Page
     private void LoadAndRender()
     {
         var day = DateOnly.FromDateTime(StatsDate.Date.DateTime);
-        var n   = Math.Max(1, (int)TopNBox.Value);
+        var n = Math.Max(1, (int)TopNBox.Value);
         AppConfig config = AppConfig.Load();
-        
+
         var (_, top) = _stats.LoadDay(day, n);
         var data = top
             .Where(u => !config.IsExcludedApp(u.exe) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
@@ -61,9 +94,9 @@ public sealed partial class ChartsPage : Page
             .Select((u, i) => new UsageRowVm
             {
                 Rank = i + 1,
-                Exe = u.exe,                     
+                Exe = u.exe,
                 Seconds = u.secs
-            });;
+            }); ;
 
         var labels = data.Select(r => r.Exe).ToArray();
         var values = data.Select(r => r.Seconds).ToArray();
@@ -77,12 +110,9 @@ public sealed partial class ChartsPage : Page
         {
             SKTypeface = SKTypeface.FromFamilyName("Segoe UI", SKFontStyle.Bold)
         };
-        
-        Chart.Series = new ISeries[]
-        {
-            new ColumnSeries<double> { Values = values }
-        };
 
+        
+        _series.Values = values;
         Chart.XAxes = new[]
         {
             new Axis
@@ -118,5 +148,6 @@ public sealed partial class ChartsPage : Page
                 }
             }
         };
+        
     }
 }

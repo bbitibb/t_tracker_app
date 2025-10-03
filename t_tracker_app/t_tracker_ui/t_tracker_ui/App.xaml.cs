@@ -14,13 +14,13 @@ namespace t_tracker_ui;
 public sealed partial class App : Application
 {
     public static UiState State { get; } = new UiState();
-    
+
     public IHost Host { get; }
-    
+
     public App()
     {
         InitializeComponent();
-        
+
         Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
@@ -29,12 +29,12 @@ public sealed partial class App : Application
 
                 services.AddTransient<MainWindow>();
                 services.AddTransient<AboutPage>();
-                
+
                 services.AddSingleton<StatsReader>();
                 services.AddTransient<DashboardViewModel>();
             })
             .Build();
-        
+
         UnhandledException += async (s, e) =>
         {
             e.Handled = true;

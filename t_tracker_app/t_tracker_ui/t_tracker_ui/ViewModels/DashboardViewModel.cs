@@ -16,7 +16,7 @@ public partial class DashboardViewModel : ObservableObject
     private DateTimeOffset selectedDate = DateTimeOffset.Now.Date;
     [ObservableProperty]
     private int limit = 10;
-    
+
     private readonly StatsReader _stats = new();
     public ObservableCollection<UsageRowVm> Top { get; } = new();
 
@@ -28,7 +28,7 @@ public partial class DashboardViewModel : ObservableObject
         var config = AppConfig.Load();
         var topCount = Limit + config.ExcludedApps.Count + 1;
         var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date, topCount));
-        
+
         var top = topRaw
             .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Idle", StringComparison.OrdinalIgnoreCase)
@@ -39,11 +39,11 @@ public partial class DashboardViewModel : ObservableObject
             .Select((u, i) => new UsageRowVm
             {
                 Rank = i + 1,
-                Exe = u.exe,                   
+                Exe = u.exe,
                 Seconds = u.secs
             });
 
-        
+
         Top.Clear();
         foreach (var item in top) Top.Add(item);
     }

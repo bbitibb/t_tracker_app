@@ -13,9 +13,9 @@ builder.Services.AddSingleton(appConfig);
 
 builder.Services.AddSingleton<ScreenLogger>();
 builder.Services.AddSingleton<ScreenStatistics>();
-builder.Services.AddSingleton<WindowInfoFetcher>(); 
+builder.Services.AddSingleton<WindowInfoFetcher>();
 
-builder.Services.AddHostedService<FocusTrackerService>(); 
+builder.Services.AddHostedService<FocusTrackerService>();
 
 var app = builder.Build();
 
@@ -24,7 +24,6 @@ Console.WriteLine($"Config loaded from: {appConfig.FilePath}");
 Console.WriteLine($"Idle Timeout: {appConfig.IdleTimeoutSeconds}s");
 Console.WriteLine($"Excluded Apps: {string.Join(", ", appConfig.ExcludedApps)}");
 
-// ---- REST endpoints ----
 
 app.MapGet("/", () => "t_tracker API running. Use /live or /top");
 
@@ -38,12 +37,12 @@ app.MapGet("/live", (WindowInfoFetcher fetcher) =>
 // GET /top?date=2025-07-30&n=10
 app.MapGet("/top", (string? date, int? n, ScreenStatistics stats) =>
 {
-    var day  = date is null
+    var day = date is null
         ? DateOnly.FromDateTime(DateTime.Now)
         : DateOnly.Parse(date);
 
     var rows = stats.LoadDay(day);
-    var top  = stats.TopN(rows, n ?? 10);
+    var top = stats.TopN(rows, n ?? 10);
     return Results.Json(top);
 });
 
@@ -52,13 +51,13 @@ app.MapGet("/health", (ScreenStatistics stats) =>
 {
     try
     {
-        var day   = DateOnly.FromDateTime(DateTime.Now);
-        var rows  = stats.LoadDay(day);
-        var json  = new
+        var day = DateOnly.FromDateTime(DateTime.Now);
+        var rows = stats.LoadDay(day);
+        var json = new
         {
-            status        = "ok",
-            dbPath        = LogDb.FilePath,
-            rowsToday     = rows.Count,
+            status = "ok",
+            dbPath = LogDb.FilePath,
+            rowsToday = rows.Count,
             serverTimeUtc = DateTime.UtcNow.ToString("o")
         };
         return Results.Json(json);
@@ -66,17 +65,16 @@ app.MapGet("/health", (ScreenStatistics stats) =>
     catch (Exception ex)
     {
         return Results.Problem(
-            title:  "Health check failed",
+            title: "Health check failed",
             detail: ex.ToString(),
             statusCode: 500);
     }
 });
 
 // GET /export.csv?date=YYYY-MM-DD  -> streamed CSV (download)
-// Columns: start_local,end_local,duration_seconds,duration_hms,exe,title
 app.MapGet("/export.csv", (HttpContext ctx, ScreenStatistics stats, string? date) =>
 {
-    var day  = ParseOrToday(date);
+    var day = ParseOrToday(date);
     var rows = stats.LoadDay(day);
 
     var sb = new StringBuilder();
@@ -85,7 +83,7 @@ app.MapGet("/export.csv", (HttpContext ctx, ScreenStatistics stats, string? date
     foreach (var e in rows)
     {
         var start = e.Timestamp;
-        var end   = e.Timestamp.AddSeconds(e.Duration);
+        var end = e.Timestamp.AddSeconds(e.Duration);
 
         sb.Append(start.ToString("yyyy-MM-dd HH:mm:ss"));
         sb.Append(',');
@@ -110,10 +108,10 @@ app.Lifetime.ApplicationStopping.Register(() =>
 {
     using var scope = app.Services.CreateScope();
     var stats = scope.ServiceProvider.GetRequiredService<ScreenStatistics>();
-    
+
     var rows = stats.LoadDay(DateOnly.FromDateTime(DateTime.Now));
-    var top  = stats.TopN(rows, 10);
-    
+    var top = stats.TopN(rows, 10);
+
     Console.WriteLine("\nTop apps today:");
     foreach (var (exe, secs) in top)
         Console.WriteLine($"{exe,-20} {TimeSpan.FromSeconds(secs):hh\\:mm\\:ss}");

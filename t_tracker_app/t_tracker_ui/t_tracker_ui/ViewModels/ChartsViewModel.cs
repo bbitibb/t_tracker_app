@@ -14,13 +14,7 @@ public class ChartsViewModel
     {
         AppUsageSeries = new ISeries[]
         {
-            new ColumnSeries<double>
-            {
-                Name = "Minutes",
-                Values = new double[] { 30, 45, 10, 60 },
-                DataLabelsPaint = new SolidColorPaint(SKColors.Gray),
-                DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:N0}m"
-            }
+
         };
     }
 }

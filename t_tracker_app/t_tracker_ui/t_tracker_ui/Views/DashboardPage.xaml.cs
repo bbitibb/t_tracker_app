@@ -14,6 +14,7 @@ public sealed partial class DashboardPage : Page
     public ObservableCollection<UsageRowVm> Top { get; } = new();
     public DashboardViewModel ViewModel { get; } = new();
     private readonly StatsReader _reader = new();
+    private readonly DispatcherTimer _autoTimer = new();
 
     public DashboardPage()
     {
@@ -22,18 +23,29 @@ public sealed partial class DashboardPage : Page
         Loaded += async (_, __) => await ViewModel.RefreshAsync();
         DataContext = ViewModel;
         StatsDate.SelectedDate = new DateTimeOffset(DateTime.Now);
+        _autoTimer.Interval = TimeSpan.FromSeconds(1);
+        _autoTimer.Tick += async (_, __) =>
+        {
+            var selected = DateOnly.FromDateTime(StatsDate.Date.DateTime);
+            if (selected == DateOnly.FromDateTime(DateTime.Now))
+                await ViewModel.RefreshAsync();
+        };
+        
     }
     private async void StatsDate_DateChanged(DatePicker sender, DatePickerValueChangedEventArgs args)
         => await ViewModel.RefreshAsync();
-
-    private async void Refresh_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.RefreshAsync();
+    
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        //base.OnNavigatedTo(e);
+        base.OnNavigatedTo(e);
         //await LoadAsync();
+        _autoTimer.Start(); 
     }
-
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        _autoTimer.Stop();
+    }
     private async Task LoadAsync()
     {
         Top.Clear();
@@ -55,7 +67,7 @@ public sealed partial class DashboardPage : Page
         }
         await Task.CompletedTask;
     }
-    
+
 }
 
 public sealed class UsageRowVm
