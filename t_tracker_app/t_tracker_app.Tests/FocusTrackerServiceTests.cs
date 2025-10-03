@@ -17,7 +17,7 @@ public class FocusTrackerServiceTests
         private readonly Queue<(string Title, string Exe)> _script;
         private (string Title, string Exe) _last;
 
-        public ScriptedFetcher(IEnumerable<(string Title, string Exe)> script, (string,string) fallback)
+        public ScriptedFetcher(IEnumerable<(string Title, string Exe)> script, (string, string) fallback)
         {
             _script = new Queue<(string Title, string Exe)>(script);
             _last = (fallback.Item1, fallback.Item2);

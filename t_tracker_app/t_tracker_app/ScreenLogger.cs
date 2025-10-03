@@ -24,7 +24,7 @@ public class ScreenLogger : IDisposable
             prag.ExecuteNonQuery();
         }
         _queue = new BlockingCollection<(DateTime, string, string)>(new ConcurrentQueue<(DateTime, string, string)>());
-        _cts   = new CancellationTokenSource();
+        _cts = new CancellationTokenSource();
         _worker = Task.Run(() => WriterLoop(_cts.Token));
     }
 
@@ -48,9 +48,9 @@ public class ScreenLogger : IDisposable
                               INSERT INTO focus_log (ts, title, exe)
                               VALUES ($ts, $title, $exe);
                           """;
-        var pTs    = cmd.CreateParameter();  pTs.ParameterName = "$ts";    cmd.Parameters.Add(pTs);
-        var pTitle = cmd.CreateParameter();  pTitle.ParameterName = "$title"; cmd.Parameters.Add(pTitle);
-        var pExe   = cmd.CreateParameter();  pExe.ParameterName = "$exe";  cmd.Parameters.Add(pExe);
+        var pTs = cmd.CreateParameter(); pTs.ParameterName = "$ts"; cmd.Parameters.Add(pTs);
+        var pTitle = cmd.CreateParameter(); pTitle.ParameterName = "$title"; cmd.Parameters.Add(pTitle);
+        var pExe = cmd.CreateParameter(); pExe.ParameterName = "$exe"; cmd.Parameters.Add(pExe);
 
         try
         {
@@ -61,17 +61,17 @@ public class ScreenLogger : IDisposable
                 using var tx = _cn.BeginTransaction();
                 cmd.Transaction = tx;
 
-                pTs.Value    = first.tsUtc.ToString("o");
+                pTs.Value = first.tsUtc.ToString("o");
                 pTitle.Value = first.title ?? string.Empty;
-                pExe.Value   = first.exe   ?? string.Empty;
+                pExe.Value = first.exe ?? string.Empty;
                 cmd.ExecuteNonQuery();
 
                 int drained = 0;
                 while (drained < 200 && _queue.TryTake(out var item))
                 {
-                    pTs.Value    = item.tsUtc.ToString("o");
+                    pTs.Value = item.tsUtc.ToString("o");
                     pTitle.Value = item.title ?? string.Empty;
-                    pExe.Value   = item.exe   ?? string.Empty;
+                    pExe.Value = item.exe ?? string.Empty;
                     cmd.ExecuteNonQuery();
                     drained++;
                 }
