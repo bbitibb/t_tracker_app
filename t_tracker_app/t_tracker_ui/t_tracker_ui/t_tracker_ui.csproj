@@ -5,7 +5,14 @@
     <RootNamespace>t_tracker_ui</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>  
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+      <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+      <SelfContained>true</SelfContained>
+      <PublishSingleFile>true</PublishSingleFile>
+      <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+      <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+      <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
@@ -36,6 +43,9 @@
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
+      <None Update="*.pri">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 
   <!--
