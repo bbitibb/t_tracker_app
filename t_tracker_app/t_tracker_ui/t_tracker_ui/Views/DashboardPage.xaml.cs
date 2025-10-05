@@ -1,10 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using t_tracker_ui.Services;
+using t_tracker_ui.State;
 using t_tracker_ui.ViewModels;
 
 namespace t_tracker_ui.Views;
@@ -20,26 +22,42 @@ public sealed partial class DashboardPage : Page
     {
         InitializeComponent();
         NavigationCacheMode = NavigationCacheMode.Required;
-        Loaded += async (_, __) => await ViewModel.RefreshAsync();
         DataContext = ViewModel;
-        StatsDate.SelectedDate = new DateTimeOffset(DateTime.Now);
+        
+        StatsDate.SelectedDate = App.State.SelectedDate;
+        App.State.PropertyChanged += OnAppStateChanged;
+        
         _autoTimer.Interval = TimeSpan.FromSeconds(1);
         _autoTimer.Tick += async (_, __) =>
         {
-            var selected = DateOnly.FromDateTime(StatsDate.Date.DateTime);
+            var selected = DateOnly.FromDateTime(App.State.SelectedDate.DateTime);
             if (selected == DateOnly.FromDateTime(DateTime.Now))
                 await ViewModel.RefreshAsync();
         };
         
+        StatsDate.DateChanged += async (_, args) =>
+        {
+            App.State.SelectedDate = args.NewDate;
+            await ViewModel.RefreshAsync();
+        };
+
+        Loaded += async (_, __) => await ViewModel.RefreshAsync();
+        
     }
-    private async void StatsDate_DateChanged(DatePicker sender, DatePickerValueChangedEventArgs args)
-        => await ViewModel.RefreshAsync();
+    private async void OnAppStateChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(UiState.SelectedDate))
+        {
+            StatsDate.SelectedDate = App.State.SelectedDate;
+            await ViewModel.RefreshAsync();
+        }
+    }
     
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        //await LoadAsync();
-        _autoTimer.Start(); 
+        _autoTimer.Start();
+        StatsDate.Date = App.State.SelectedDate;
     }
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {

@@ -12,7 +12,7 @@ public static class LogDb
         FilePath = ResolvePath();
     }
 
-    public static string ResolvePath()
+    private static string ResolvePath()
     {
         var overridePath = Environment.GetEnvironmentVariable("T_TRACKER_DB_PATH");
         if (!string.IsNullOrWhiteSpace(overridePath))
@@ -44,6 +44,15 @@ public static class LogDb
                                   exe     TEXT    NOT NULL
                               );
                               CREATE INDEX IF NOT EXISTS idx_ts ON focus_log (ts);
+
+                              CREATE TABLE IF NOT EXISTS domain_log (
+                                id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                                ts      TEXT    NOT NULL,
+                                domain  TEXT    NOT NULL,
+                                url     TEXT,
+                                source  TEXT    NOT NULL
+                              );
+                              CREATE INDEX IF NOT EXISTS idx_domain_ts ON domain_log (domain, ts);
                               """;
         using var cmd = cn.CreateCommand();
 

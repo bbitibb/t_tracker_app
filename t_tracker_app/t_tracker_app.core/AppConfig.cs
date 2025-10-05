@@ -9,7 +9,6 @@ namespace t_tracker_app.core;
 
 public class AppConfig
 {
-    // Default settings
     public List<string> ExcludedApps { get; set; } = new List<string>
     {
         "explorer",
@@ -18,7 +17,9 @@ public class AppConfig
     };
     public int IdleTimeoutSeconds { get; set; } = 900;
     public string ApiBaseUrl { get; set; } = "http://localhost:5000";
-
+    public bool EnableProxyTracking { get; set; } = true;
+    public int  ProxyPort           { get; set; } = 8888;
+    public bool SetSystemProxy      { get; set; } = true;
 
     [JsonIgnore]
     public string FilePath { get; private set; }
