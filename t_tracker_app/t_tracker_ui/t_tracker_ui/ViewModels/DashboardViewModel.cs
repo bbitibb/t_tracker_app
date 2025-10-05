@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using t_tracker_app.core;
 using t_tracker_ui.Services;
+using t_tracker_ui.State;
 using SS = t_tracker_app.core.ScreenStatistics;
 using t_tracker_ui.Views;
 
@@ -12,19 +13,49 @@ namespace t_tracker_ui.ViewModels;
 
 public partial class DashboardViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private DateTimeOffset selectedDate = DateTimeOffset.Now.Date;
-    [ObservableProperty]
-    private int limit = 10;
+    public DateTimeOffset SelectedDate
+    {
+        get => App.State.SelectedDate;
+        set
+        {
+            if (App.State.SelectedDate != value)
+            {
+                App.State.SelectedDate = value;
+                OnPropertyChanged();
+                _ = RefreshAsync();
+            }
+        }
+    }
+
+    public int Limit
+    {
+        get => App.State.Limit;
+        set
+        {
+            if (App.State.Limit != value)
+            {
+                App.State.Limit = value;
+                OnPropertyChanged();
+                _ = RefreshAsync();
+            }
+        }
+    }
 
     private readonly StatsReader _stats = new();
     public ObservableCollection<UsageRowVm> Top { get; } = new();
 
-    partial void OnSelectedDateChanged(DateTimeOffset value) => _ = RefreshAsync();
-    partial void OnLimitChanged(int value) => _ = RefreshAsync();
+    public DashboardViewModel()
+    {
+        App.State.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(UiState.SelectedDate))
+                OnPropertyChanged(nameof(SelectedDate));
+        };
+    }
+    
     public async Task RefreshAsync()
     {
-        var date = DateOnly.FromDateTime(SelectedDate.Date);
+        var date = DateOnly.FromDateTime(App.State.SelectedDate.Date);
         var config = AppConfig.Load();
         var topCount = Limit + config.ExcludedApps.Count + 1;
         var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date, topCount));

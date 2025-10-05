@@ -36,8 +36,9 @@ public sealed partial class ChartsPage : Page
     {
         InitializeComponent();
         NavigationCacheMode = NavigationCacheMode.Required;
-        StatsDate.Date = DateTimeOffset.Now;
-        TopNBox.Value = 10;
+        
+        StatsDate.Date = App.State.SelectedDate;
+        TopNBox.Value = App.State.Limit;
 
         _autoTimer.Interval = TimeSpan.FromSeconds(1);
         _autoTimer.Tick += (_, __) =>
@@ -48,6 +49,13 @@ public sealed partial class ChartsPage : Page
         };
         
         DataContext = ViewModel;
+        
+        App.State.PropertyChanged += OnAppStateChanged;
+
+        StatsDate.DateChanged += (_, args) =>
+        {
+            App.State.SelectedDate = args.NewDate;
+        };
         
         Chart.Series = new ISeries[] { _series, };
         _series.Fill = new LinearGradientPaint(
@@ -69,6 +77,8 @@ public sealed partial class ChartsPage : Page
         base.OnNavigatedTo(e);
         _autoTimer.Start(); 
         LoadAndRender();
+        
+        StatsDate.Date = App.State.SelectedDate;
     }
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
@@ -78,7 +88,10 @@ public sealed partial class ChartsPage : Page
     private void OnAppStateChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(UiState.SelectedDate))
+        {
+            StatsDate.Date = App.State.SelectedDate;
             LoadAndRender();
+        }
     }
     private void LoadAndRender()
     {

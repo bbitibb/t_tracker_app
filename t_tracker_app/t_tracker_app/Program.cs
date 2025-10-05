@@ -14,8 +14,9 @@ builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton<ScreenLogger>();
 builder.Services.AddSingleton<ScreenStatistics>();
 builder.Services.AddSingleton<WindowInfoFetcher>();
-
+builder.Services.AddSingleton<DomainLogger>();
 builder.Services.AddHostedService<FocusTrackerService>();
+builder.Services.AddHostedService<DomainProxyService>();
 
 var app = builder.Build();
 
@@ -102,6 +103,34 @@ app.MapGet("/export.csv", (HttpContext ctx, ScreenStatistics stats, string? date
     var filename = $"t_tracker_{day:yyyy-MM-dd}.csv";
     ctx.Response.Headers["Content-Disposition"] = $"attachment; filename=\"{filename}\"";
     return Results.Text(csv, "text/csv");
+});
+
+app.MapGet("/domains/top", (string? date, int? n) =>
+{
+    var day = string.IsNullOrWhiteSpace(date) ? DateOnly.FromDateTime(DateTime.Now) : DateOnly.Parse(date);
+    var dayStartLocal = day.ToDateTime(TimeOnly.MinValue, DateTimeKind.Local);
+    var dayEndLocal   = dayStartLocal.AddDays(1);
+    var startUtc = dayStartLocal.ToUniversalTime().ToString("o");
+    var endUtc   = dayEndLocal.ToUniversalTime().ToString("o");
+
+    using var cn = LogDb.OpenReadOnly();
+    using var cmd = cn.CreateCommand();
+    cmd.CommandText = """
+                        SELECT domain, COUNT(*) AS hits
+                        FROM domain_log
+                        WHERE ts >= $s AND ts < $e
+                        GROUP BY domain
+                        ORDER BY hits DESC
+                        LIMIT $n;
+                      """;
+    cmd.Parameters.AddWithValue("$s", startUtc);
+    cmd.Parameters.AddWithValue("$e", endUtc);
+    cmd.Parameters.AddWithValue("$n", n ?? 10);
+
+    var list = new System.Collections.Generic.List<object>();
+    using var r = cmd.ExecuteReader();
+    while (r.Read()) list.Add(new { domain = r.GetString(0), hits = r.GetInt64(1) });
+    return Results.Json(list);
 });
 
 app.Lifetime.ApplicationStopping.Register(() =>
