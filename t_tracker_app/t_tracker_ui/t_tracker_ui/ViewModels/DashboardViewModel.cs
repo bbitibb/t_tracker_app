@@ -61,7 +61,7 @@ public partial class DashboardViewModel : ObservableObject
         var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date, topCount));
 
         var top = topRaw
-            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase)
+            .Where(u => !config.IsExcludedApp(u.exe)
                         && !string.Equals(u.exe, "Idle", StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Stopped", StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Excluded", StringComparison.OrdinalIgnoreCase))

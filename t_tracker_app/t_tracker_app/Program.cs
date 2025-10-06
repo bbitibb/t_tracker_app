@@ -17,10 +17,11 @@ builder.Services.AddSingleton<WindowInfoFetcher>();
 builder.Services.AddSingleton<DomainLogger>();
 builder.Services.AddHostedService<FocusTrackerService>();
 builder.Services.AddHostedService<DomainProxyService>();
+builder.Services.AddSingleton<DomainStatistics>();
 
 var app = builder.Build();
 
-Console.WriteLine("DB PATH = " + System.IO.Path.GetFullPath(LogDb.Open().DataSource));
+Console.WriteLine("DB PATH = " + Path.GetFullPath(LogDb.Open().DataSource));
 Console.WriteLine($"Config loaded from: {appConfig.FilePath}");
 Console.WriteLine($"Idle Timeout: {appConfig.IdleTimeoutSeconds}s");
 Console.WriteLine($"Excluded Apps: {string.Join(", ", appConfig.ExcludedApps)}");
@@ -131,6 +132,15 @@ app.MapGet("/domains/top", (string? date, int? n) =>
     using var r = cmd.ExecuteReader();
     while (r.Read()) list.Add(new { domain = r.GetString(0), hits = r.GetInt64(1) });
     return Results.Json(list);
+});
+app.MapGet("/domains/top_time", (string? date, int? n, DomainStatistics dom) =>
+{
+    var day = string.IsNullOrWhiteSpace(date)
+        ? DateOnly.FromDateTime(DateTime.Now)
+        : DateOnly.Parse(date);
+
+    var (_, top) = dom.LoadDay(day, n ?? 10);
+    return Results.Json(top);
 });
 
 app.Lifetime.ApplicationStopping.Register(() =>

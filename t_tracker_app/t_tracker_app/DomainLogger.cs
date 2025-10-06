@@ -29,8 +29,7 @@ public sealed class DomainLogger : IDisposable
 
     public void LogDomain(string domain, string? url)
     {
-        if (_disposed) return;
-        if (string.IsNullOrWhiteSpace(domain)) return;
+        if (_disposed || string.IsNullOrWhiteSpace(domain) || _q.IsAddingCompleted) return;
         _q.Add((DateTime.UtcNow, domain, url, "proxy"));
     }
 
@@ -38,42 +37,50 @@ public sealed class DomainLogger : IDisposable
     {
         using var cmd = _cn.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO domain_log (ts, domain, url, source)
-            VALUES ($ts, $domain, $url, $source);
-        """;
-        var pTs = cmd.CreateParameter(); pTs.ParameterName = "$ts";     cmd.Parameters.Add(pTs);
-        var pDo = cmd.CreateParameter(); pDo.ParameterName = "$domain"; cmd.Parameters.Add(pDo);
-        var pUrl= cmd.CreateParameter(); pUrl.ParameterName = "$url";   cmd.Parameters.Add(pUrl);
-        var pSo = cmd.CreateParameter(); pSo.ParameterName = "$source"; cmd.Parameters.Add(pSo);
+                              INSERT INTO domain_log (ts, domain, url, source)
+                              VALUES ($ts, $domain, $url, $source);
+                          """;
+        var pTs = cmd.CreateParameter(); pTs.ParameterName="$ts";     cmd.Parameters.Add(pTs);
+        var pDo = cmd.CreateParameter(); pDo.ParameterName="$domain"; cmd.Parameters.Add(pDo);
+        var pUrl= cmd.CreateParameter(); pUrl.ParameterName="$url";   cmd.Parameters.Add(pUrl);
+        var pSo = cmd.CreateParameter(); pSo.ParameterName="$source"; cmd.Parameters.Add(pSo);
 
         try
         {
-            while (!ct.IsCancellationRequested)
+            while (!_q.IsCompleted && !ct.IsCancellationRequested)
             {
                 if (!_q.TryTake(out var first, Timeout.Infinite, ct)) continue;
+
                 using var tx = _cn.BeginTransaction();
                 cmd.Transaction = tx;
 
-                void ins((DateTime tsUtc, string domain, string? url, string source) it)
-                {
-                    pTs.Value = it.tsUtc.ToString("o");
-                    pDo.Value = it.domain;
-                    pUrl.Value = it.url ?? "";
-                    pSo.Value = it.source;
-                    cmd.ExecuteNonQuery();
-                }
+                pTs.Value = first.tsUtc.ToString("o");
+                pDo.Value = first.domain;
+                pUrl.Value = first.url ?? "";
+                pSo.Value = first.source;
+                cmd.ExecuteNonQuery();
 
-                ins(first);
                 int drained = 0;
                 while (drained < 200 && _q.TryTake(out var more))
-                { ins(more); drained++; }
+                {
+                    pTs.Value = more.tsUtc.ToString("o");
+                    pDo.Value = more.domain;
+                    pUrl.Value = more.url ?? "";
+                    pSo.Value = more.source;
+                    cmd.ExecuteNonQuery();
+                    drained++;
+                }
 
                 tx.Commit();
                 cmd.Transaction = null;
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { Console.Error.WriteLine($"[DomainLogger] {ex}"); }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[DomainLogger] WriterLoop failed: {ex}");
+        }
     }
 
     public void Dispose()
