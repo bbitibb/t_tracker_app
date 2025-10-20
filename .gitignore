@@ -25,6 +25,10 @@ bld/
 [Bb]in/
 [Oo]bj/
 _dist/
+**/bin/
+**/obj/
+**/AppPackages/
+*.msixbundle
 
 # Rider cache
 .idea/
@@ -63,18 +67,15 @@ $RECYCLE.BIN/
 # Rider local history
 .idea/.idea.*
 
-# Others you might want to ignore
+# Others
 *.db
 *.DS_Store
 
-# Uncomment this if you use a Mac
 #.DS_Store
 
-# Uncomment this if you use Rider's solution-wide analyzer cache
 #.idea/.idea.*
 
 # Rider solution-wide analyzer files
 .idea/.idea.*
 
-# Uncomment if you use DotCover
 #*.dotCover
