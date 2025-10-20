@@ -87,11 +87,8 @@ public sealed partial class ChartsPage : Page
     }
     private void OnAppStateChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(UiState.SelectedDate))
-        {
-            StatsDate.Date = App.State.SelectedDate;
+        if (e.PropertyName is nameof(UiState.SelectedDate) or nameof(UiState.DisplayNamesVersion))
             LoadAndRender();
-        }
     }
     private void LoadAndRender()
     {
@@ -101,17 +98,18 @@ public sealed partial class ChartsPage : Page
 
         var (_, top) = _stats.LoadDay(day, n);
         var data = top
-            .Where(u => !config.IsExcludedApp(u.exe) && u.exe != "Idle" && u.exe != "Stopped" && u.exe != "Excluded")
+            .Where(u => !config.IsExcludedApp(u.exe) /*&& u.exe != "Idle"*/ && u.exe != "Stopped" && u.exe != "Excluded")
             .OrderByDescending(u => u.secs)
             .Take(n)
             .Select((u, i) => new UsageRowVm
             {
                 Rank = i + 1,
-                Exe = u.exe,
+                ExeRaw = u.exe,
+                DisplayName = config.GetDisplayNameOrExe(u.exe),
                 Seconds = u.secs
-            }); ;
+            });
 
-        var labels = data.Select(r => r.Exe).ToArray();
+        var labels = data.Select(r => r.DisplayName).ToArray();
         var values = data.Select(r => r.Seconds).ToArray();
 
         var boldAxisPaint = new SolidColorPaint(new SKColor(0x33, 0x33, 0x33))

@@ -47,7 +47,6 @@ public static class SystemProxy
         }
         else
         {
-            // no backup → fail open
             using var k = Registry.CurrentUser.OpenSubKey(K, writable: true)!;
             k.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
         }

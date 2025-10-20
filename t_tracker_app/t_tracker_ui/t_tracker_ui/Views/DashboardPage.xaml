@@ -11,6 +11,7 @@
 
     <Page.Resources>
         <util:SecondsToHmsConverter x:Key="Hms"/>
+        
     </Page.Resources>
   <Page.DataContext>
     <StaticResource ResourceKey="UiState"/>
@@ -48,7 +49,7 @@
             <ListView.Header>
                 <Grid ColumnDefinitions="60,*,100" Padding="8,0,8,0">
                     <TextBlock Text="#" />
-                    <TextBlock Grid.Column="1" Text="Executable" />
+                    <TextBlock Grid.Column="1" Text="Name" />
                     <TextBlock Grid.Column="2" Text="Duration" HorizontalAlignment="Right" />
                 </Grid>
             </ListView.Header>
@@ -56,7 +57,7 @@
                 <DataTemplate x:DataType="local:UsageRowVm">
                     <Grid ColumnDefinitions="60,*,100" Padding="8">
                         <TextBlock Text="{x:Bind Rank}" />
-                        <TextBlock Grid.Column="1" Text="{x:Bind Exe}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind DisplayName}" />
                         <TextBlock Grid.Column="2"
                                    Text="{x:Bind Seconds, Converter={StaticResource Hms}}"
                                    HorizontalAlignment="Right" />
@@ -77,6 +78,24 @@
             CloseButtonContent="OK"
             CloseButtonStyle="{StaticResource AppTeachingTipCloseButtonStyle}"
             CloseButtonClick="RowTip_CloseButtonClick"
-        />
+            Closing="RowTip_Closing">
+            <TeachingTip.HeroContent>
+                <StackPanel Spacing="8" MinWidth="290">
+                    <TextBlock Text="Display name" FontWeight="SemiBold"/>
+
+                    <TextBox x:Name="NameEditor"
+                             Text=""
+                             IsReadOnly="True"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Tapped="NameEditor_Tapped"
+                             LostFocus="NameEditor_LostFocus"
+                             KeyDown="NameEditor_KeyDown"/>
+
+                    <TextBlock Text="Executable" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                    <TextBlock x:Name="ExeText" Text="" Opacity="0.8"/>
+                </StackPanel>
+            </TeachingTip.HeroContent>
+        </TeachingTip>
     </Grid>
 </Page>

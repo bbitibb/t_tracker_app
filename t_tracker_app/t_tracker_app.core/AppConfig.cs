@@ -9,6 +9,8 @@ namespace t_tracker_app.core;
 
 public class AppConfig
 {
+    public Dictionary<string, string> DisplayNames { get; set; }
+        = new(StringComparer.OrdinalIgnoreCase);
     public List<string> ExcludedApps { get; set; } = new List<string>
     {
         "explorer",
@@ -51,6 +53,8 @@ public class AppConfig
                 if (loadedConfig != null)
                 {
                     loadedConfig.FilePath = config.FilePath;
+                    loadedConfig.NormalizeExcludedApps();
+                    loadedConfig.NormalizeDisplayNames();
                     return loadedConfig;
                 }
             }
@@ -77,6 +81,47 @@ public class AppConfig
             string.Equals(NormalizeExeName(app), normalized, StringComparison.OrdinalIgnoreCase));
     }
 
+    public void SetDisplayName(string exeOrProcessName, string? displayName)
+    {
+        var key = NormalizeExeName(exeOrProcessName);
+        var val = displayName?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(key)) return;
+
+        if (string.IsNullOrWhiteSpace(val))
+        {
+            DisplayNames.Remove(key);
+        }
+        else if (string.Equals(key, val, StringComparison.Ordinal))
+        {
+            DisplayNames.Remove(key);
+        }
+        else
+        {
+            DisplayNames[key] = val;
+        }
+
+        NormalizeDisplayNames();
+        Save();
+    }
+    
+    public void NormalizeDisplayNames()
+    {
+        DisplayNames = DisplayNames
+            .Where(kv => !string.IsNullOrWhiteSpace(kv.Key))
+            .GroupBy(kv => NormalizeExeName(kv.Key), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Last().Value?.Trim() ?? string.Empty,
+                StringComparer.OrdinalIgnoreCase);
+    }
+    
+    public string GetDisplayNameOrExe(string exeOrProcessName)
+    {
+        var key = NormalizeExeName(exeOrProcessName);
+        return DisplayNames.TryGetValue(key, out var val) && !string.IsNullOrWhiteSpace(val)
+            ? val
+            : key;
+    }
+    
     public void NormalizeExcludedApps()
     {
         ExcludedApps = ExcludedApps

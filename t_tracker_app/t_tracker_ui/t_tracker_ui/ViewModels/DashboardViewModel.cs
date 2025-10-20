@@ -61,7 +61,7 @@ public partial class DashboardViewModel : ObservableObject
         var (_, topRaw) = await Task.Run(() => _stats.LoadDay(date, topCount));
 
         var top = topRaw
-            .Where(u => !config.IsExcludedApp(u.exe)
+            .Where(u => !config.ExcludedApps.Contains(u.exe, StringComparer.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Idle", StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Stopped", StringComparison.OrdinalIgnoreCase)
                         && !string.Equals(u.exe, "Excluded", StringComparison.OrdinalIgnoreCase))
@@ -70,6 +70,8 @@ public partial class DashboardViewModel : ObservableObject
             .Select((u, i) => new UsageRowVm
             {
                 Rank = i + 1,
+                ExeRaw = u.exe,
+                DisplayName = config.GetDisplayNameOrExe(u.exe),
                 Exe = u.exe,
                 Seconds = u.secs
             });
