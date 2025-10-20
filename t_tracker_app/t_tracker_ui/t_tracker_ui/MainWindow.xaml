@@ -42,9 +42,6 @@
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem  Icon="FourBars" Content="Charts" Tag="ChartsPage"/>
-            <NavigationViewItem Icon="Save" Content="Menu Item2" Tag="SamplePage2" />
-            <NavigationViewItem Icon="Refresh" Content="Menu Item3" Tag="SamplePage3" />
-            <NavigationViewItem Icon="Download" Content="Menu Item4" Tag="SamplePage4" />
             <NavigationViewItem Icon="Help" Content="About" Tag="AboutPage"/>
         </NavigationView.MenuItems>
         <Frame x:Name="ContentFrame"/>

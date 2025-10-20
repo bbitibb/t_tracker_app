@@ -29,6 +29,9 @@ _dist/
 # Rider cache
 .idea/
 
+# Visual Studio cache
+.vs/
+
 # NuGet packages (optional, usually don't need this unless using packages folder)
 packages/
 *.nupkg

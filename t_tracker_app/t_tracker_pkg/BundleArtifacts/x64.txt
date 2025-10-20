@@ -1,0 +1,2 @@
+MainPackage=D:\Dev\Projects\t_tracker_app\t_tracker_app\t_tracker_pkg\bin\x64\Release\t_tracker_pkg_1.0.6.0_x64.msix
+SymbolPackage=D:\Dev\Projects\t_tracker_app\t_tracker_app\t_tracker_pkg\obj\x64\Release\Symbols\t_tracker_pkg_1.0.6.0_x64.appxsym

@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-      <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+      <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <RootNamespace>t_tracker_ui</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>  
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
       <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
       <SelfContained>true</SelfContained>
       <PublishSingleFile>true</PublishSingleFile>
@@ -17,18 +17,20 @@
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
       <WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion>
+      <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>true</EnableMsixTooling>
     <EnableMrtCorePriGeneration>false</EnableMrtCorePriGeneration>  
       <EnableMrtCoreResourceManager>false</EnableMrtCoreResourceManager>
     <EnablePriGeneration>false</EnablePriGeneration>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
   </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc4" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.*" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "t_tracker_app": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:49472;http://localhost:49473"
+    }
+  }
+}
